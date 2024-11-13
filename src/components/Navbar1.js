@@ -1,13 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import Typography from "@material-ui/core/Typography";
-import IconButton from "@material-ui/core/IconButton";
-import Button from "@material-ui/core/Button";
-import MenuIcon from "@material-ui/icons/Menu";
-import Menu from "@material-ui/core/Menu";
-import MenuItem from "@material-ui/core/MenuItem";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
+import IconButton from "@mui/material/IconButton";
+import Button from "@mui/material/Button";
+import MenuIcon from "@mui/icons-material/Menu";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/Menu";
 
 const Navbar = () => {
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -20,11 +20,9 @@ const Navbar = () => {
     setAnchorEl(null);
   };
 
-  const linkStyle = { color: 'white', marginRight: '15px' };
-
   return (
     <AppBar position="fixed">
-      <Toolbar style={{ justifyContent: 'space-between' }}>
+      <Toolbar sx={{ justifyContent: 'space-between' }}>
         <IconButton
           edge="start"
           color="inherit"
@@ -33,23 +31,29 @@ const Navbar = () => {
         >
           <MenuIcon />
         </IconButton>
+
         <Typography variant="h6">
-          <Button component={Link} to="/login" style={linkStyle}>Voter Login</Button>
-          <Button component={Link} to="/signup" style={linkStyle}>Voter Signup</Button>
-          <Button component={Link} to="/login" style={linkStyle}>Admin Login</Button>
+          <Button component={Link} to="/login" sx={{ color: 'white', mr: 2 }}>
+            Voter Login
+          </Button>
+          <Button component={Link} to="/signup" sx={{ color: 'white', mr: 2 }}>
+            Voter Signup
+          </Button>
+          <Button component={Link} to="/login" sx={{ color: 'white', mr: 2 }}>
+            Admin Login
+          </Button>
         </Typography>
+
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleClose}
+        >
+          <MenuItem onClick={handleClose}>Option 1</MenuItem>
+          <MenuItem onClick={handleClose}>Option 2</MenuItem>
+          <MenuItem onClick={handleClose}>Option 3</MenuItem>
+        </Menu>
       </Toolbar>
-      {/* Responsive Menu */}
-      {/* <Menu
-        anchorEl={anchorEl}
-        keepMounted
-        open={Boolean(anchorEl)}
-        onClose={handleClose}
-      >
-        <MenuItem component={Link} to="/login" onClick={handleClose}>Voter Login</MenuItem>
-        <MenuItem component={Link} to="/signup" onClick={handleClose}>Voter Signup</MenuItem>
-        <MenuItem component={Link} to="/login" onClick={handleClose}>Admin Login</MenuItem>
-      </Menu> */}
     </AppBar>
   );
 };
