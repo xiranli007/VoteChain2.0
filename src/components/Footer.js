@@ -31,7 +31,7 @@ const Footer = () => {
         }}
       />
       <Typography variant="body2" style={{ color: "white" }}>
-        2023 VoteChain
+        2024 VoteChain 2.0
       </Typography>
     </Box>
   );
