@@ -10,6 +10,7 @@ import ResultsPage from "./components/Results/Results";
 import Logout from "./components/Logout/Logout"
 import { auth } from "./firebase";
 import "./App.css";
+import { AuthProvider } from './context/AuthContext'
 
 function App() {
   const [userName, setUserName] = useState("");
@@ -37,39 +38,41 @@ function App() {
   return (
     <div className="App">
       <Router>
-        <Routes>
-        
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/logout" element={<Logout />} />
-          <Route
-            path="/"
-            element={
-              userName ? (
-                <Navigate to="/elections" replace />
-              ) : (
-                <Home
-                  name={userName}
+        <AuthProvider>
+          <Routes>
+          
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/logout" element={<Logout />} />
+            <Route
+              path="/"
+              element={
+                userName ? (
+                  <Navigate to="/elections" replace />
+                ) : (
+                  <Home
+                    name={userName}
+                    selectedElection={selectedElection}
+                    handleElectionSelect={handleElectionSelect}
+                  />
+                )
+              }
+            />
+            <Route path="/elections" element={<ElectionsList 
+                    handleElectionSelect={handleElectionSelect} selectedElection={selectedElection} />} />
+            <Route
+              path="/candidates/:electionId"
+              element={
+                <CandidatesList
                   selectedElection={selectedElection}
-                  handleElectionSelect={handleElectionSelect}
+                  votedCandidates={votedCandidates}
+                  handleVote={handleVote}
                 />
-              )
-            }
-          />
-          <Route path="/elections" element={<ElectionsList 
-                  handleElectionSelect={handleElectionSelect} selectedElection={selectedElection} />} />
-          <Route
-            path="/candidates/:electionId"
-            element={
-              <CandidatesList
-                selectedElection={selectedElection}
-                votedCandidates={votedCandidates}
-                handleVote={handleVote}
-              />
-            }
-          />
-          <Route path="/results" element={<ResultsPage />} />
-        </Routes>
+              }
+            />
+            <Route path="/results" element={<ResultsPage />} />
+          </Routes>
+        </AuthProvider>
       </Router>
     </div>
   );

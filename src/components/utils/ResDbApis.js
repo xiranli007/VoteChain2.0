@@ -39,3 +39,4 @@ export const FETCH_PRODUCT = (product) => `query {
     asset
   }
 }`;
+

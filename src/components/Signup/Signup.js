@@ -1,9 +1,11 @@
+
 // import React, { useState } from "react";
 // import { Link, useNavigate } from "react-router-dom";
-// import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-// import { CeramicClient } from "@ceramicnetwork/http-client";
-// import { DIDSession } from "did-session";
-// import { EthereumAuthProvider } from "@ceramicnetwork/blockchain-utils-linking";
+// import {
+//   createUserWithEmailAndPassword,
+//   updateProfile,
+//   sendEmailVerification,
+// } from "firebase/auth";
 // import { auth } from "../../firebase";
 // import {
 //   Container,
@@ -17,9 +19,6 @@
 // } from "reactstrap";
 // import styles from "./Signup.module.css";
 // import signupImage from "../../assest/signup_undraw.svg"; // Replace with your image path
-
-// // Initialize Ceramic Client
-// const ceramic = new CeramicClient("https://ceramic-clay.3boxlabs.com"); // Ceramic testnet
 
 // function Signup() {
 //   const navigate = useNavigate();
@@ -46,41 +45,18 @@
 //       const user = res.user;
 //       await updateProfile(user, { displayName: values.name });
       
-//       // Generate DID for the new user
-//       await generateDIDForUser();
-
-//       // Navigate to homepage on successful signup and DID generation
+//       // Send email verification
+//       await sendEmailVerification(user);
+//       alert("Check your email for verification and verify before logging in.");
+//       setSubmitButtonDisabled(false);
 //       navigate("/");
+  
 //     } catch (err) {
 //       setErrorMsg(err.message);
 //       setSubmitButtonDisabled(false);
 //     }
 //   };
-
-//   // Generate a DID for the user using MetaMask
-//   const generateDIDForUser = async () => {
-//     try {
-//       // Check if MetaMask is installed
-//       if (!window.ethereum) {
-//         throw new Error("MetaMask is not installed. Please install MetaMask to use DID functionality.");
-//       }
-
-//       // Request account access
-//       const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-//       const authProvider = new EthereumAuthProvider(window.ethereum, accounts[0]);
-
-//       // Authorize a DID session
-//       const didSession = await DIDSession.authorize(authProvider, { resources: ["*"] });
-//       ceramic.did = didSession.did; // Attach DID to Ceramic client
-
-//       console.log("DID generated successfully:", didSession.did.id);
-//     } catch (error) {
-//       console.error("DID generation failed:", error);
-//       setErrorMsg(error.message || "Error generating DID. Please try again.");
-//       setSubmitButtonDisabled(false);
-//     }
-//   };
-
+  
 //   // Handle input change
 //   const handleInputChange = (event, field) => {
 //     const { value } = event.target;
@@ -165,16 +141,9 @@
 // export default Signup;
 
 
-
-
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  createUserWithEmailAndPassword,
-  updateProfile,
-  sendEmailVerification,
-} from "firebase/auth";
-import { auth } from "../../firebase";
+import { useAuth } from "../../context/AuthContext";
 import {
   Container,
   Row,
@@ -189,38 +158,45 @@ import styles from "./Signup.module.css";
 import signupImage from "../../assest/signup_undraw.svg"; // Replace with your image path
 
 function Signup() {
-  const navigate = useNavigate();
+  const { signup } = useAuth(); 
   const [values, setValues] = useState({
     name: "",
     email: "",
-    pass: "",
+    password: "",
   });
   const [errorMsg, setErrorMsg] = useState("");
   const [submitButtonDisabled, setSubmitButtonDisabled] = useState(false);
+  const [privateKey, setPrivateKey] = useState(null);
 
   // Handle form submission
   const handleSubmission = async () => {
-    if (!values.name || !values.email || !values.pass) {
+    if (!values.name || !values.email || !values.password) {
       setErrorMsg("Fill all fields");
       return;
     }
+
     setErrorMsg("");
     setSubmitButtonDisabled(true);
 
     try {
-      // Firebase Signup
-      const res = await createUserWithEmailAndPassword(auth, values.email, values.pass);
-      const user = res.user;
-      await updateProfile(user, { displayName: values.name });
-      
-      // Send email verification
-      await sendEmailVerification(user);
-      alert("Check your email for verification and verify before logging in.");
-      setSubmitButtonDisabled(false);
-      navigate("/");
+      const { user, privateKey } = await signup(values.email, values.password, values.name);
+      console.log (privateKey)
+
+      // Display private key to the user
+      setPrivateKey(privateKey);
+
+      // Clear input fields
+      setValues({ name: "", email: "", password: "" });
+
+      // Notify the user
+      alert(
+        "Signup successful! Check your email for verification and save your private key securely."
+      );
   
     } catch (err) {
-      setErrorMsg(err.message);
+      console.error(err);
+      setErrorMsg("Signup failed. Please try again.");
+    } finally {
       setSubmitButtonDisabled(false);
     }
   };
@@ -241,6 +217,39 @@ function Signup() {
           <Col md={{ size: 4, offset: 1 }}>
             <div className={styles.innerBox}>
               <h1 className={styles.heading}>Signup</h1>
+              {privateKey && ( // Display private key after signup
+                <div className={styles.privateKeyBox}>
+                  <h4>Save Your Private Key</h4>
+                  <p>
+                    This is your private key. Please save it securely. You will not see this again:
+                  </p>
+                  <pre className={styles.privateKeyDisplay}>
+                    {privateKey}
+                  </pre>
+                  <Button
+                    color="success"
+                    onClick={() => {
+                      const element = document.createElement("a");
+                      const file = new Blob([privateKey], { type: "text/plain" });
+                      element.href = URL.createObjectURL(file);
+                      element.download = "privateKey.txt";
+                      document.body.appendChild(element);
+                      element.click();
+                    }}
+                  >
+                    Download Private Key
+                  </Button>{" "}
+                  <Button
+                    color="secondary"
+                    onClick={() => {
+                      navigator.clipboard.writeText(privateKey);
+                      alert("Private key copied to clipboard.");
+                    }}
+                  >
+                    Copy to Clipboard
+                  </Button>
+                </div>
+              )}
               <Form>
                 <FormGroup>
                   <Label for="name">Name</Label>
@@ -268,8 +277,8 @@ function Signup() {
                     type="password"
                     id="password"
                     placeholder="Enter password"
-                    value={values.pass}
-                    onChange={(e) => handleInputChange(e, "pass")}
+                    value={values.password}
+                    onChange={(e) => handleInputChange(e, "password")}
                   />
                 </FormGroup>
                 <div className={styles.footer}>

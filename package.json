@@ -22,7 +22,7 @@
     "cryptr": "^6.3.0",
     "did-session": "^4.0.0",
     "emailjs-com": "^3.2.0",
-    "firebase": "^10.7.0",
+    "firebase": "^9.22.0",
     "framer-motion": "^10.16.15",
     "otp-input-react": "^0.3.0",
     "phosphor-react": "^1.4.1",

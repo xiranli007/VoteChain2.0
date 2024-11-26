@@ -21,7 +21,7 @@ const elections = [
     logo: election_1,
     title: "Constituency A Election",
     description: "Join us on a successful journey towards a brighter future built on innovation, creativity, inclusivity, progress, etc.",
-    dates: "Election Dates: 12/1/2023 - 12/12/2023"
+    dates: "Election Dates: 12/1/2024 - 12/12/2024"
   },
   {
     id: 2,
@@ -29,7 +29,7 @@ const elections = [
     logo: election_2,
     title: "Constituency B Election",
     description: "We promote community empowerment, fostering strong, vibrant neighborhoods where every voice is heard.",
-    dates: "Election Dates: 12/5/2023 - 12/15/2023"
+    dates: "Election Dates: 12/5/2024 - 12/15/2024"
   },
   {
     id: 3,
@@ -37,7 +37,7 @@ const elections = [
     logo: election_4,
     title: "Constituency C Election",
     description: "Advocating for accountability and transparency, believing in a government that is open, honest, and responsible.",
-    dates: "Election Dates: 12/6/2023 - 12/12/2023"
+    dates: "Election Dates: 12/6/2024 - 12/12/2024"
   },
 ];
 
