@@ -53,7 +53,7 @@ export function AuthProvider({ children }) {
             await set(ref(database, "users/" + userId), {
             publicKey: publicKey,
             });
-            await fetchKeys(userId);
+            // await fetchKeys(userId);
             console.log("Signup complete. Returning user and privateKey.");
             // return user data and private key
             return { user, privateKey };
@@ -99,7 +99,9 @@ export function AuthProvider({ children }) {
       const snapshot = await get(dbRef);
       if (snapshot.exists()) {
           const data = snapshot.val();
+        //   console.log("Fetched data:", data);
           setUserKeys(data);
+          return data.publicKey
       } else {
           setUserKeys(null); 
       }
@@ -136,6 +138,7 @@ export function AuthProvider({ children }) {
     const value = {
       currentUser,
       userKeys,
+      fetchKeys,
       login,
       signup,
       logout,

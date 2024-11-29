@@ -33,6 +33,12 @@ const Navbar = () => {
         </IconButton>
         <Typography variant="h6">
           {/* Replace any previous button links with the Logout link */}
+          <Button component={Link} to="/elections" sx={{ color: "white", mr: 2 }}>
+            All Elections
+          </Button>
+          <Button component={Link} to="/create-election" sx={{ color: "white", mr: 2 }}>
+            Create Election
+          </Button>
           <Button component={Link} to="/logout" sx={{ color: "white", mr: 2 }}>
             Logout
           </Button>

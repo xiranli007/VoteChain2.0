@@ -1,87 +1,320 @@
+// import React, { useState, useEffect } from "react";
+// import { Button, Typography } from "@mui/material";
+// import CheckIcon from "@mui/icons-material/Check"; // Adjusted icon import
+// import { POST_TRANSACTION, FETCH_TRANSACTION } from "../utils/ResDbApis";
+// import { sendRequest } from "../utils/ResDbClient";
+// import { auth } from '../../firebase';
+// import { useParams } from "react-router-dom";
+// import withAuthProtection from "../AuthProtect/AuthProtect";
+// import Navbar from "../Navbar2";
+// import Footer from "../Footer";
+// import styles from "./CandidatesList.module.css";
+// import { Container, Row, Col } from "reactstrap";
+// import List from '@mui/material/List';
+// import ListItem from '@mui/material/ListItem';
+// import Avatar from '@mui/material/Avatar';
+// import { ToastContainer, toast } from 'react-toastify';
+// import 'react-toastify/dist/ReactToastify.css';
+// import back_image_cand from "../../assest/undraw_people_re_8spw.svg";
+
+// import c1 from '../../assest/c1.png';
+// import c2 from '../../assest/c2.png';
+// import c3 from '../../assest/c3.png';
+// import c4 from '../../assest/c4.png';
+// import c5 from '../../assest/c5.png';
+// import c6 from '../../assest/c6.png';
+// import c7 from '../../assest/c7.png';
+// import c8 from '../../assest/c8.png';
+// import c9 from '../../assest/c9.png';
+// import c10 from '../../assest/c10.png';
+// import c11 from '../../assest/c11.png';
+// import c12 from '../../assest/c12.png';
+// import c13 from '../../assest/c13.png';
+// import c14 from '../../assest/c14.png';
+// import c15 from '../../assest/c15.png';
+// import c16 from '../../assest/c16.png';
+
+// import { v4 as uuidv4 } from 'uuid';  // Import UUID
+
+// const sampleCandidates = [
+//   { id: "1", name: "Candidate 1" },
+//   { id: "2", name: "Candidate 2" },
+//   { id: "3", name: "Candidate 3" },
+// ];
+
+// const CandidatesList = ({ selectedElection, votedCandidates, handleVote, isElectionVoted }) => {
+//   const [isVotingDisabled, setVotingDisabled] = useState(false);
+//   const [votedCandidate, setVotedCandidate] = useState(null);
+//   const [transactions, setTransactions] = useState([]);
+//   const [voterList, setVoterList] = useState([]);
+//   const [isVoted, setIsVoted] = useState(false);
+//   const { electionId } = useParams();
+//   const [confirmation, setConfirmation] = useState(null);
+
+//   const svgImages = [c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16];
+//   const getRandomSvgImage = () => svgImages[Math.floor(Math.random() * svgImages.length)];
+
+//   useEffect(() => {
+//     if (selectedElection) {
+//       fetchTransactions(selectedElection);
+//     }
+//   }, [selectedElection]);
+
+//   const fetchTransactions = async (electionId) => {
+//     try {
+//       const res = await sendRequest(FETCH_TRANSACTION("B8GFzNi6vfVhA9crXSC2S8s9K2eoNJd1HhwEbCLwT6gC", "B8GFzNi6vfVhA9crXSC2S8s9K2eoNJd1HhwEbCLwT6gC"));
+//       if (res && res.data && res.data.getFilteredTransactions) {
+//         setTransactions(res.data.getFilteredTransactions);
+//         let voters = [...voterList];
+//         res.data.getFilteredTransactions.forEach(element => {
+//           voters.push(JSON.parse(element.asset.replace(/'/g, '"')).data);
+//         });
+//         setVoterList(voters);
+//       }
+//     } catch (error) {
+//       console.error("Error fetching transactions:", error);
+//     }
+//   };
+
+//   const handleCandidateVote = async (candidateId) => {
+   
+//     if (!candidateId) return;
+//     try {
+//       const user = auth.currentUser;
+//       if (!user) return;
+
+//       const metadata = {
+//         signerPublicKey: "B8GFzNi6vfVhA9crXSC2S8s9K2eoNJd1HhwEbCLwT6gC",
+//         signerPrivateKey: "5xFSv5y3HYJv5YSNJ78cSS7Tuaf38Lu6UYj2ajngFuwH",
+//         recipientPublicKey: "B8GFzNi6vfVhA9crXSC2S8s9K2eoNJd1HhwEbCLwT6gC",
+//       };
+
+//       const hasVoted = voterList.some(item => item.electionId === electionId && item.voterId === user.uid);
+
+//       if (!hasVoted) {
+//         const dataItem = {
+//           electionId,
+//           candidateId,
+//           voterId: user.uid,
+//           voteCount: 1,
+//           additionalData: {
+//             timestamp: Date.now(),
+//             location: "Precinct 123",
+//             verificationCode: "ABCDEF",
+//           },
+//         };
+
+//         const res = await sendRequest(POST_TRANSACTION(metadata, JSON.stringify(dataItem)));
+//         if (res.data) { // Check for a successful transaction
+//           // Generate a unique transaction ID and timestamp
+//           const transactionId = uuidv4();
+//           const timestamp = new Date().toISOString();
+//           // Set the confirmation details
+//           setConfirmation({ transactionId, timestamp });
+//           setVotedCandidate(candidateId);
+//           setVotingDisabled(true);
+//         } else {
+//           toast.error("Transaction failed. Please try again.", {
+//               position: "top-center",
+//               autoClose: 5000,
+//           });
+//         }  
+//       } else {
+//         setIsVoted(true);
+//       }
+//     } catch (error) {
+//       console.error("Error while voting:", error);
+//     }
+//   };
+
+//   useEffect(() => {
+//     if (isVoted) {
+//       toast.info('You have already voted.', {
+//         position: "top-center",
+//         autoClose: 5000,
+//       });
+//     } else if (votedCandidate) {
+//       toast.success(`You have successfully voted for ${votedCandidate}.`, {
+//         position: "top-center",
+//         autoClose: 5000,
+//       });
+//     }
+//   }, [isVoted, votedCandidate]);
+//   return (
+//     <>
+//       <Navbar />
+//       <Container className={styles.container}>
+//         <Row className="justify-content-center">
+//           <Col md="6" className={styles.imageCol} style={{ paddingRight: "100px", paddingTop: "100px" }}>
+//             <div className={styles.imageContainer}>
+//               <img src={back_image_cand} alt="..." className={styles.back_image_cand} />
+//             </div>
+//           </Col>
+//           <Col md="6">
+//             <div>
+//               <Typography variant="h3" style={{ padding: "50px" }}>Candidates List</Typography>
+//               {selectedElection && (
+//                 <Typography variant="h5">Election: {selectedElection.name}</Typography>
+//               )}
+//               {isElectionVoted && (
+//                 <Typography variant="h6">You have already voted in this election.</Typography>
+//               )}
+//               <ToastContainer position="top-center" autoClose={5000} />
+  
+//               <div style={{ display: 'grid', gridTemplateRows: 'repeat(3, 1fr)', gap: '20px' }}>
+//                 {sampleCandidates.map(candidate => (
+//                   <List sx={{ width: '100%', maxWidth: 1000, bgcolor: 'background.paper', marginBottom: 2 }} key={candidate.id}>
+//                     <ListItem alignItems="flex-start">
+//                       <Avatar alt={candidate.name} src={getRandomSvgImage()} style={{ width: '80px', height: '80px' }} />
+//                       <Typography variant="h5" style={{ flex: 'column', marginLeft: 15, marginTop: '25px' }}>{candidate.name}</Typography>
+//                       <Button
+//                         variant="contained"
+//                         color="primary"
+//                         startIcon={<CheckIcon />}
+//                         onClick={() => handleCandidateVote(candidate.id)}
+//                         disabled={isVotingDisabled}
+//                         style={{ whiteSpace: 'nowrap', marginLeft: '100px' }}
+//                       >
+//                         Vote
+//                       </Button>
+//                     </ListItem>
+//                   </List>
+//                 ))}
+//               </div>
+  
+//               {/* Transaction Receipt Section */}
+//               {confirmation && (
+//                 <div className={styles.confirmationReceipt} style={{ marginTop: '30px', padding: '20px', border: '1px solid #ddd', borderRadius: '8px', backgroundColor: '#f9f9f9' }}>
+//                   <Typography variant="h5" style={{ marginBottom: '10px' }}>Vote Confirmation Receipt</Typography>
+//                   <Typography variant="body1">
+//                     <strong>Transaction ID:</strong> {confirmation.transactionId}
+//                   </Typography>
+//                   <Typography variant="body1">
+//                     <strong>Timestamp:</strong> {new Date(confirmation.timestamp).toLocaleString()}
+//                   </Typography>
+//                   <Typography variant="body2" color="textSecondary" style={{ marginTop: '10px' }}>
+//                     Thank you for voting! Your vote has been recorded successfully.
+//                   </Typography>
+//                 </div>
+//               )}
+//             </div>
+//           </Col>
+//         </Row>
+//       </Container>
+//       <Footer />
+//     </>
+//   );
+// };
+
+
+
+// export default withAuthProtection(CandidatesList);
+
+
 import React, { useState, useEffect } from "react";
-import { Button, Typography } from "@mui/material";
-import CheckIcon from "@mui/icons-material/Check"; // Adjusted icon import
-import { POST_TRANSACTION, FETCH_TRANSACTION } from "../utils/ResDbApis";
-import { sendRequest } from "../utils/ResDbClient";
-import { auth } from '../../firebase';
 import { useParams } from "react-router-dom";
-import withAuthProtection from "../AuthProtect/AuthProtect";
+import { useAuth } from "../../context/AuthContext";
+import { Button, Typography, Avatar, Box } from "@mui/material";
+import CheckIcon from "@mui/icons-material/Check";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { FETCH_ELECTION_BY_ID, FETCH_VOTES, POST_TRANSACTION } from "../utils/ResDbApis";
+import { sendRequest } from "../utils/ResDbClient";
 import Navbar from "../Navbar2";
 import Footer from "../Footer";
 import styles from "./CandidatesList.module.css";
 import { Container, Row, Col } from "reactstrap";
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import Avatar from '@mui/material/Avatar';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import c1 from "../../assest/c1.png";
+import c2 from "../../assest/c2.png";
+import c3 from "../../assest/c3.png";
+import c4 from "../../assest/c4.png";
 import back_image_cand from "../../assest/undraw_people_re_8spw.svg";
 
-import c1 from '../../assest/c1.png';
-import c2 from '../../assest/c2.png';
-import c3 from '../../assest/c3.png';
-import c4 from '../../assest/c4.png';
-import c5 from '../../assest/c5.png';
-import c6 from '../../assest/c6.png';
-import c7 from '../../assest/c7.png';
-import c8 from '../../assest/c8.png';
-import c9 from '../../assest/c9.png';
-import c10 from '../../assest/c10.png';
-import c11 from '../../assest/c11.png';
-import c12 from '../../assest/c12.png';
-import c13 from '../../assest/c13.png';
-import c14 from '../../assest/c14.png';
-import c15 from '../../assest/c15.png';
-import c16 from '../../assest/c16.png';
+const svgImages = [c1, c2, c3, c4];
+const getRandomSvgImage = () => svgImages[Math.floor(Math.random() * svgImages.length)];
 
-import { v4 as uuidv4 } from 'uuid';  // Import UUID
-
-const sampleCandidates = [
-  { id: "1", name: "Candidate 1" },
-  { id: "2", name: "Candidate 2" },
-  { id: "3", name: "Candidate 3" },
-];
-
-const CandidatesList = ({ selectedElection, votedCandidates, handleVote, isElectionVoted }) => {
-  const [isVotingDisabled, setVotingDisabled] = useState(false);
+const CandidatesList = () => {
+  const { electionId } = useParams(); // Get election ID from route params
+  const [candidates, setCandidates] = useState([]);
+  const [voteCounts, setVoteCounts] = useState({});
+  const [hasVoted, setHasVoted] = useState(false);
   const [votedCandidate, setVotedCandidate] = useState(null);
-  const [transactions, setTransactions] = useState([]);
-  const [voterList, setVoterList] = useState([]);
-  const [isVoted, setIsVoted] = useState(false);
-  const { electionId } = useParams();
-  const [confirmation, setConfirmation] = useState(null);
+  const { currentUser, fetchKeys } = useAuth();
 
-  const svgImages = [c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16];
-  const getRandomSvgImage = () => svgImages[Math.floor(Math.random() * svgImages.length)];
+  // Fetch election data for candidate details
+  useEffect(() => {
+    const fetchElectionData = async () => {
+      try {
+        const res = await sendRequest(FETCH_ELECTION_BY_ID(electionId));
+        // console.log(JSON.parse(res.data.getTransaction.asset.replace(/'/g, '"')).data.candidates)
+        if (res.data.getTransaction) {
+          const electionData = JSON.parse(
+            res.data.getTransaction.asset.replace(/'/g, '"')
+          ).data;
+
+          const formattedCandidates = electionData.candidates.map((candidate, index) => ({
+            name: candidate.name,
+            index, // Use the position in the array as the index
+          }));
+          setCandidates(formattedCandidates);
+      
+        }
+      } catch (error) {
+        console.error("Error fetching election data:", error);
+      }
+    };
+    fetchElectionData();
+  }, [electionId]);
 
   useEffect(() => {
-    if (selectedElection) {
-      fetchTransactions(selectedElection);
-    }
-  }, [selectedElection]);
+    // console.log("Updated candidates:", candidates);
+  }, [candidates]);
 
-  const fetchTransactions = async (electionId) => {
-    try {
-      const res = await sendRequest(FETCH_TRANSACTION("B8GFzNi6vfVhA9crXSC2S8s9K2eoNJd1HhwEbCLwT6gC", "B8GFzNi6vfVhA9crXSC2S8s9K2eoNJd1HhwEbCLwT6gC"));
-      if (res && res.data && res.data.getFilteredTransactions) {
-        setTransactions(res.data.getFilteredTransactions);
-        let voters = [...voterList];
-        res.data.getFilteredTransactions.forEach(element => {
-          voters.push(JSON.parse(element.asset.replace(/'/g, '"')).data);
-        });
-        setVoterList(voters);
+  // Fetch votes for the election
+  useEffect(() => {
+    const fetchVoteData = async () => {
+      try {
+        const res = await sendRequest(FETCH_VOTES(electionId));
+        console.log(res)
+
+        if (res?.data?.getTransactionsByElectionId) {
+          const votes = res.data.getTransactionsByElectionId.map((txn) =>
+            JSON.parse(txn.asset.replace(/'/g, '"')).data
+          );
+
+          // Aggregate votes by candidate
+          const aggregatedVotes = {};
+          votes.forEach((vote) => {
+            if (aggregatedVotes[vote.candidateIndex]) {
+              aggregatedVotes[vote.candidateIndex]++;
+            } else {
+              aggregatedVotes[vote.candidateIndex] = 1;
+            }
+          });
+          setVoteCounts(aggregatedVotes);
+        }
+      } catch (error) {
+        console.error("Error fetching vote data:", error);
       }
-    } catch (error) {
-      console.error("Error fetching transactions:", error);
-    }
-  };
+    };
 
-  const handleCandidateVote = async (candidateId) => {
-   
-    if (!candidateId) return;
+    fetchVoteData();
+  }, [hasVoted]);
+
+  // Handle voting for a candidate
+  const handleVote = async (candidateIndex) => {
     try {
-      const user = auth.currentUser;
-      if (!user) return;
+      if (hasVoted) {
+        toast.error("You have already voted in this election!");
+        return;
+      }
+
+      // Prepare vote transaction
+      const voteData = {
+        currentElectionId: electionId,
+        candidateIndex,
+        voterId: currentUser.uid, // Replace with actual user ID
+      };
 
       const metadata = {
         signerPublicKey: "B8GFzNi6vfVhA9crXSC2S8s9K2eoNJd1HhwEbCLwT6gC",
@@ -89,124 +322,204 @@ const CandidatesList = ({ selectedElection, votedCandidates, handleVote, isElect
         recipientPublicKey: "B8GFzNi6vfVhA9crXSC2S8s9K2eoNJd1HhwEbCLwT6gC",
       };
 
-      const hasVoted = voterList.some(item => item.electionId === electionId && item.voterId === user.uid);
+      const res = await sendRequest(POST_TRANSACTION(metadata, JSON.stringify(voteData)));
 
-      if (!hasVoted) {
-        const dataItem = {
-          electionId,
-          candidateId,
-          voterId: user.uid,
-          voteCount: 1,
-          additionalData: {
-            timestamp: Date.now(),
-            location: "Precinct 123",
-            verificationCode: "ABCDEF",
-          },
-        };
+      if (res?.data?.postTransaction) {
+        toast.success("Vote cast successfully!");
+        setHasVoted(true);
+        setVotedCandidate(candidateIndex);
 
-        const res = await sendRequest(POST_TRANSACTION(metadata, JSON.stringify(dataItem)));
-        if (res.data) { // Check for a successful transaction
-          // Generate a unique transaction ID and timestamp
-          const transactionId = uuidv4();
-          const timestamp = new Date().toISOString();
-          // Set the confirmation details
-          setConfirmation({ transactionId, timestamp });
-          setVotedCandidate(candidateId);
-          setVotingDisabled(true);
-        } else {
-          toast.error("Transaction failed. Please try again.", {
-              position: "top-center",
-              autoClose: 5000,
-          });
-        }  
+        // Update the vote count locally
+        setVoteCounts((prev) => ({
+          ...prev,
+          [candidateIndex]: (prev[candidateIndex] || 0) + 1,
+        }));
       } else {
-        setIsVoted(true);
+        toast.error("Failed to cast vote. Please try again.");
       }
     } catch (error) {
-      console.error("Error while voting:", error);
+      console.error("Error casting vote:", error);
+      toast.error("An error occurred while casting your vote.");
     }
   };
 
-  useEffect(() => {
-    if (isVoted) {
-      toast.info('You have already voted.', {
-        position: "top-center",
-        autoClose: 5000,
-      });
-    } else if (votedCandidate) {
-      toast.success(`You have successfully voted for ${votedCandidate}.`, {
-        position: "top-center",
-        autoClose: 5000,
-      });
-    }
-  }, [isVoted, votedCandidate]);
-  return (
-    <>
-      <Navbar />
-      <Container className={styles.container}>
-        <Row className="justify-content-center">
-          <Col md="6" className={styles.imageCol} style={{ paddingRight: "100px", paddingTop: "100px" }}>
-            <div className={styles.imageContainer}>
-              <img src={back_image_cand} alt="..." className={styles.back_image_cand} />
-            </div>
-          </Col>
-          <Col md="6">
-            <div>
-              <Typography variant="h3" style={{ padding: "50px" }}>Candidates List</Typography>
-              {selectedElection && (
-                <Typography variant="h5">Election: {selectedElection.name}</Typography>
-              )}
-              {isElectionVoted && (
-                <Typography variant="h6">You have already voted in this election.</Typography>
-              )}
-              <ToastContainer position="top-center" autoClose={5000} />
-  
-              <div style={{ display: 'grid', gridTemplateRows: 'repeat(3, 1fr)', gap: '20px' }}>
-                {sampleCandidates.map(candidate => (
-                  <List sx={{ width: '100%', maxWidth: 1000, bgcolor: 'background.paper', marginBottom: 2 }} key={candidate.id}>
-                    <ListItem alignItems="flex-start">
-                      <Avatar alt={candidate.name} src={getRandomSvgImage()} style={{ width: '80px', height: '80px' }} />
-                      <Typography variant="h5" style={{ flex: 'column', marginLeft: 15, marginTop: '25px' }}>{candidate.name}</Typography>
+//   return (
+//     <>
+//       <Navbar />
+//       <Container className={styles.container}>
+//         <Row className="justify-content-center">
+//           <Col md="6" className={styles.imageCol} style={{ paddingRight: "100px", paddingTop: "100px" }}>
+//             <div className={styles.imageContainer}>
+//               <img src={back_image_cand} alt="Election Illustration" className={styles.back_image_cand} />
+//             </div>
+//           </Col>
+//           <Col md="6">
+//             <div>
+//               <Typography variant="h3" style={{ padding: "50px" }}>
+//                 Candidates List
+//               </Typography>
+//               {hasVoted && (
+//                 <Typography variant="h6" color="primary">
+//                   You have already voted for Candidate {candidates[votedCandidate]?.name}.
+//                 </Typography>
+//               )}
+//               <ToastContainer position="top-center" autoClose={5000} />
+//               <div style={{ display: "grid", gridTemplateRows: "repeat(3, 1fr)", gap: "20px" }}>
+//                 {candidates.map((candidate) => (
+//                   <div
+//                     key={candidate.index}
+//                     style={{
+//                       display: "flex",
+//                       alignItems: "center",
+//                       justifyContent: "space-between",
+//                       padding: "20px",
+//                       border: "1px solid #ddd",
+//                       borderRadius: "8px",
+//                       backgroundColor: "#f9f9f9",
+//                     }}
+//                   >
+//                     <Avatar
+//                       alt={candidate.name}
+//                       src={getRandomSvgImage()}
+//                       style={{ width: "80px", height: "80px" }}
+//                     />
+//                     <Typography variant="h5" style={{ flex: 1, marginLeft: 15 }}>
+//                       {candidate.name}
+//                     </Typography>
+//                     <Typography variant="h6" color="textSecondary">
+//                       Votes: {voteCounts[candidate.index] || 0}
+//                     </Typography>
+//                     <Button
+//                       variant="contained"
+//                       color="primary"
+//                       startIcon={<CheckIcon />}
+//                       onClick={() => handleVote(candidate.index)}
+//                       disabled={hasVoted}
+//                     >
+//                       Vote
+//                     </Button>
+//                   </div>
+//                 ))}
+//               </div>
+//             </div>
+//           </Col>
+//         </Row>
+//       </Container>
+//       <Footer />
+//     </>
+//   );
+// };
+
+// export default CandidatesList;
+// Calculate max votes for scaling the bar graph
+const maxVotes = Math.max(...Object.values(voteCounts), 1);
+
+return (
+  <>
+    <Navbar />
+    <Container className={styles.container}>
+      <Row className="justify-content-center">
+        <Col md="6" className={styles.imageCol} style={{ paddingRight: "100px", paddingTop: "100px" }}>
+          <div className={styles.imageContainer}>
+            <img src={back_image_cand} alt="Election Illustration" className={styles.back_image_cand} />
+          </div>
+        </Col>
+        <Col md="6">
+          <div>
+            <Typography variant="h3" style={{ padding: "50px" }}>
+              Candidates List
+            </Typography>
+            {hasVoted && (
+              <Typography variant="h6" color="primary">
+                You have already voted for Candidate {candidates[votedCandidate]?.name}.
+              </Typography>
+            )}
+            <ToastContainer position="top-center" autoClose={5000} />
+            {candidates.length === 0 && (
+              <Typography variant="h6" color="error">
+                No candidates available for this election.
+              </Typography>
+            )}
+            <div style={{ display: "grid", gridTemplateRows: "repeat(3, 1fr)", gap: "20px" }}>
+              {candidates.map((candidate) => {
+                const votePercentage = (voteCounts[candidate.index] || 0) / maxVotes * 100;
+                return (
+                  <div
+                    key={candidate.index}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "20px",
+                      border: "1px solid #ddd",
+                      borderRadius: "8px",
+                      backgroundColor: "#f9f9f9",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        width: "100%",
+                        gap: "10px",
+                      }}
+                    >
+                      <Avatar
+                        alt={candidate.name}
+                        src={getRandomSvgImage()}
+                        style={{ width: "80px", height: "80px" }}
+                      />
+                      <Typography variant="h5" style={{ flex: 1, marginLeft: 15 }}>
+                        {candidate.name}
+                      </Typography>
+                      <Box
+                        sx={{
+                          flex: 1,
+                          height: "20px",
+                          backgroundColor: "#e0e0e0",
+                          borderRadius: "5px",
+                          overflow: "hidden",
+                          position: "relative",
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            height: "100%",
+                            width: `${votePercentage}%`,
+                            backgroundColor: "#1976d2",
+                            borderRadius: "5px 0 0 5px",
+                            transition: "width 0.3s",
+                          }}
+                        />
+                      </Box>
+                      <Typography
+                        variant="body2"
+                        color="textSecondary"
+                        sx={{ marginLeft: "10px" }}
+                      >
+                        {voteCounts[candidate.index] || 0} votes
+                      </Typography>
                       <Button
                         variant="contained"
                         color="primary"
                         startIcon={<CheckIcon />}
-                        onClick={() => handleCandidateVote(candidate.id)}
-                        disabled={isVotingDisabled}
-                        style={{ whiteSpace: 'nowrap', marginLeft: '100px' }}
+                        onClick={() => handleVote(candidate.index)}
+                        disabled={hasVoted}
                       >
                         Vote
                       </Button>
-                    </ListItem>
-                  </List>
-                ))}
-              </div>
-  
-              {/* Transaction Receipt Section */}
-              {confirmation && (
-                <div className={styles.confirmationReceipt} style={{ marginTop: '30px', padding: '20px', border: '1px solid #ddd', borderRadius: '8px', backgroundColor: '#f9f9f9' }}>
-                  <Typography variant="h5" style={{ marginBottom: '10px' }}>Vote Confirmation Receipt</Typography>
-                  <Typography variant="body1">
-                    <strong>Transaction ID:</strong> {confirmation.transactionId}
-                  </Typography>
-                  <Typography variant="body1">
-                    <strong>Timestamp:</strong> {new Date(confirmation.timestamp).toLocaleString()}
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary" style={{ marginTop: '10px' }}>
-                    Thank you for voting! Your vote has been recorded successfully.
-                  </Typography>
-                </div>
-              )}
+                    </Box>
+                  </div>
+                );
+              })}
             </div>
-          </Col>
-        </Row>
-      </Container>
-      <Footer />
-    </>
-  );
+          </div>
+        </Col>
+      </Row>
+    </Container>
+    <Footer />
+  </>
+);
 };
 
-
-
-export default withAuthProtection(CandidatesList);
-
+export default CandidatesList;
